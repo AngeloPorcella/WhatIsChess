@@ -1,4 +1,5 @@
 class Piece:
+    # TODO go through and delete any unneeded methods and whatnot
     def __init__(self, color, currentPos):
         if color > 0:
             self.color = "white"

@@ -1,21 +1,29 @@
+# Made by Angelo Porcella
 import pieces
 
+# TODO Check every possible square hit by every piece after a move is played
+# TODO this is to ensure pins arent missed
+# TODO Verify pieces can't move through other pieces
+# TODO Make a method that checks sightlines (for checks and such)
+# TODO Make sure moved pieces are tracked (en passant and castling)
+# TODO Make turns a thing
+# TODO Eventually make a GUI
+# size of board
 rows = int(8)
 cols = int(8)
-pieceList = {}
-moveLog = () # TODO make this track pieces and their moves set up as a 2-tuple of piece, end location
-board = [[0 for i in range(cols)] for j in range(rows)]
+pieceList = {}  # dictionary for storing all piece data throughout game
+moveLog = ()  # TODO make this track pieces and their moves set up as a 2-tuple of piece, end location
+board = [[0 for i in range(cols)] for j in range(rows)]  # initialize 2d array for board
 
 
-def printBoard():
+def printBoard():  # print
     for row in board:
         print()
         for square in row:
             print(squareBehavior(square), end=" ")
 
 
-# black pieces have a value below 0, white pieces have a positive value
-def squareBehavior(square) -> str:
+def squareBehavior(square) -> str:  # backbone for ASCII board black pieces are negative, white are positive
     if square == 0:
         return "+"
     elif square == 1:
@@ -44,8 +52,7 @@ def squareBehavior(square) -> str:
         return "k"
 
 
-# Initialize all pieces in a standard setup
-def updateBoard():
+def updateBoard():  # update board with current positions from dictionary
     for i in range(rows):
         for j in range(cols):
             board[i][j] = 0
@@ -62,8 +69,9 @@ def getKey(val):
         if val == value:
             return key
 
+
 def checkTarget(piece):
-    # this shit is fucked. Please look through
+    # this shit is fucked. Please think about this for 5 minutes and make it work.
     for key in pieceList:
         for move in key.moveList:
             for value in pieceList.values():
@@ -72,21 +80,14 @@ def checkTarget(piece):
                 x = move[1] - currPos[1]
                 newPos = (y, x)
                 if newPos == value:
-                    print("Dis shit gotta sightline x ray stype")
+                    print("hanging")
                 else:
                     print("nobody lookin")
 
 
-    # TODO Check every possible square hit by every piece after a move is played
-    # TODO this is to ensure pins arent missed
-# TODO Verify pieces can't move through other pieces
-# TODO Make a method for capturing pieces - can't capture own pieces
-# TODO Make a method that checks sightlines (for checks and such)
-# TODO Make sure moved pieces are tracked (en passant and castling)
-# TODO Make turns a thing
-# TODO Eventually make a GUI
 def movePiece():
     whatPiece = input("Select a piece: ")
+    # TODO take the input long castle or short castle
     inputList = whatPiece.split()
     column = inputList[0]
     row = inputList[1]
@@ -103,27 +104,29 @@ def movePiece():
     move = decodeInput((column, row))
     y = move[0] - currPos[0]
     x = move[1] - currPos[1]
-    posChange = (y, x)
+    posChange = (y, x)  # calculate position change for move, used in checking if a move is in the move-set
+    # TODO make sure pieces don't leave the bounds of the board and declare this as a non-legal move
 
-    if posChange in piece.getMoveList():
+    if posChange in piece.getMoveList():  # check if move is legal for piece
         standingPiece = getKey(move)
-        if standingPiece is None or standingPiece.color != piece.color:
+        if standingPiece is None or standingPiece.color != piece.color:  # see if the piece can occupy square
             print(piece.name + " has moved to " + whereTo + ".")
-            if standingPiece is not None and standingPiece.color != piece.color:
+            if standingPiece is not None and standingPiece.color != piece.color:  # capture opposite color
                 del pieceList[standingPiece]
             pieceList[piece] = move
             piece.currentPos = move
             updateBoard()
         else:
             print("not a legal move")
-            if piece.name == "Pawn" or piece.name == "King":
+            if piece.name == "Pawn" or piece.name == "King":  # if a pawn or king moves, it loses part of their move-set
+                # TODO make this a thing for rooks as well for castling
                 piece.pieceMoved()
     else:
 
         print("not a legal move")
 
 
-def decodeInput(moveTuple):
+def decodeInput(moveTuple):  # method for allowing chess inputs such as a 5, b 4 etc... converts them to 2d array index
     startRow = int(moveTuple[1])
     row = 8 - startRow
     column = 0
